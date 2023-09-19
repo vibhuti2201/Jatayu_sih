@@ -63,21 +63,6 @@ class operation_fragment : Fragment() {
 
 
 
-        val view=inflater.inflate(R.layout.fragment_operation_fragment, container, false)
-
-        val notifybtn= view.findViewById<Button>(R.id.notifyOrgbtn)
-
-
-        val teamidtext=view.findViewById<TextView>(R.id.teamid)
-        val createftext=view.findViewById<TextView>(R.id.createdat)
-
-//
-//        val supportMapFragment= childFragmentManager.findFragmentById(R.id.google_map) as SupportMapFragment
-//        supportMapFragment.getMapAsync { googleMap: GoogleMap -> }
-
-
-
-
 
         prefs = loginStatus(requireContext())
         //val isLoggedIn = prefs.isLoggedIn
@@ -88,58 +73,51 @@ class operation_fragment : Fragment() {
         val userRole = prefs.userRole.toString()
         val team = prefs.team.toString()
         val organisation = prefs.organisation.toString()
+        val sessionid = prefs.sessionsId.toString()
 
 
-        SocketHandler.setSocket()
-        SocketHandler.establishConnection()
-        val socket = SocketHandler.getSocket()
+
+
+
+        val view=inflater.inflate(R.layout.fragment_operation_fragment, container, false)
+
+        val notifybtn= view.findViewById<Button>(R.id.notifyOrgbtn)
+        val Sessectioncard= view.findViewById<CardView>(R.id.SessectioncardBtn)
+
+
+        val teamidtext=view.findViewById<TextView>(R.id.teamid)
+        val sesseion=view.findViewById<TextView>(R.id.tvsesstionid)
+        val createftext=view.findViewById<TextView>(R.id.createdat)
+        val title=view.findViewById<TextView>(R.id.tvtitle)
+        val subtitle=view.findViewById<TextView>(R.id.tvsubtitle)
+
+
+        sesseion.text="sesseion: "+sessionid
+        teamidtext.text="team: "+team
+
+
+
+
+
+
+
+
+
+
+
+
 
         notifybtn.setOnClickListener {
 
+            Sessectioncard.visibility=View.VISIBLE
+            title.text="Current Running Sessions"
+            subtitle.text="Tap on sessions to update your information"
 
-
-                val requestData = JSONObject()
-                requestData.put("senderId", "${team}")
-                requestData.put("receiverId", "${organisation}")
-                requestData.put("teamId", "${team}")
-                requestData.put("message", "Disaster Alert")
-                requestData.put("status", "pending")
-                requestData.put("estimatedAffectees", 0)
-
-                val locationData = JSONObject()
-                locationData.put("long", "${long.toString()}")
-                locationData.put("lat", "${lat.toString()}")
-                locationData.put("radius", 50)
-                requestData.put("location", locationData)
-
-
-                socket.emit("req-from-emp", requestData , Ack { args ->
-                    // Process the callback response here
-                    if (args.isNotEmpty()) {
-                        val response = args[0] // Assuming the response is the first argument
-                        println("Received response: $response")
-                        Log.d("SocketIO", "Received response: $response")
-
-                        val gson = Gson()
-                        val responseData = gson.fromJson(response.toString(), ResponseData::class.java)
-
-
-                        val createdAt = responseData.data.request.createdAt
-                        val teamId = responseData.data.request.teamId
-                        teamidtext.text="teamId: "+teamId
-                        createftext.text="createdAt: "+createdAt
-
-                    }
-                })
-
-            socket.on("req-from-emp", onResponse)
-
-
-            }
+        }
 
 //        open sessions card view
-        val textview=view.findViewById<TextView>(R.id.textView3)
-        textview.setOnClickListener {
+
+        Sessectioncard.setOnClickListener {
             val intent= Intent(activity,SessionViewActivity::class.java)
             val intents=Intent(requireContext(), LocationService::class.java).apply {
                 action = LocationService.ACTION_START
@@ -189,21 +167,7 @@ class operation_fragment : Fragment() {
 //    location?.let { CameraUpdateFactory.newLatLng(it) }?.let { googleMap.moveCamera(it) }
 //}
 
-    private fun requestLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return
-        }
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location ->
-                if (location != null) {
-                    lat = location.latitude
-                    long = location.longitude
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.d("location_for-lat-Long","${e.message}")
-            }
-    }
+
 
 
 }
